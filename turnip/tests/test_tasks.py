@@ -1,7 +1,6 @@
 from turnip.tests import TestModel, model, Session
 
 from turnip.worker import Worker
-from turnip import commands
 
 from datetime import datetime, timedelta
 
