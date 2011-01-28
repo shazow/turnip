@@ -1,4 +1,4 @@
-# Example 1: Simple print.
+# Example 1: Simple print
 
 First we tell turnip which database to use. This is where tasks will be inserted into and read from.
 
