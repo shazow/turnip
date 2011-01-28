@@ -32,7 +32,7 @@ from turnip import commands
 from turnip import model
 
 def main():
-    usage="%prog COMMAND [ARGS ...]\n" + __doc__
+    usage="%prog --engine=ENGINE COMMAND [ARGS ...]\n" + __doc__
 
     # FIXME: Use argparse someday
     parser = OptionParser(usage)

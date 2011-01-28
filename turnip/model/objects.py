@@ -12,7 +12,7 @@ __all__ = [
 # Task management
 
 class Task(BaseModel):
-    __tablename__ = 'task'
+    __tablename__ = 'turnip_task'
 
     id = Column(types.Integer, primary_key=True)
     time_created = Column(types.DateTime, default=datetime.now, nullable=False)
