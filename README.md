@@ -47,6 +47,8 @@ The goal is to be simple, small, and self-contained.
 
 ## Schema
 
+This will get you an idea of what defines a task.
+
     class Task(BaseModel):
         __tablename__ = 'turnip_task'
 
@@ -66,7 +68,7 @@ The goal is to be simple, small, and self-contained.
         params = Column(types.PickleType, default=dict, nullable=False)
 
         # Random string (like a uuid)
-        lock_key = Column(types.String(32))
+        lock_key = Column(types.LargeBinary(16))
 
         recurring_cron = Column(types.String(128)) # Cron-like string for recurring. If not set, wont recur.
 
@@ -76,3 +78,8 @@ The goal is to be simple, small, and self-contained.
         parent_type = Column(mytypes.Enum(['master', 'retry', 'recurring']), default='master', nullable=False)
 
         state = Column(mytypes.Enum(['pending', 'started', 'completed', 'failed']), default='pending', nullable=False, index=True)
+
+## TODO
+
+* Environment setup hook.
+* Paster plugin for loading Pylons environment natively.
