@@ -79,6 +79,12 @@ This will get you an idea of what defines a task.
 
         state = Column(mytypes.Enum(['pending', 'started', 'completed', 'failed']), default='pending', nullable=False, index=True)
 
+
+## Get started
+
+Head over to the [examples](https://github.com/shazow/turnip/blob/master/examples) directory.
+
+
 ## TODO
 
 * Environment setup hook.

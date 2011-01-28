@@ -10,10 +10,10 @@ Session = model.Session
 import logging
 log = logging.getLogger('turnip')
 
-
 class Worker(object):
     def __init__(self, lock=None):
         self.lock = lock or uuid.uuid1().get_bytes()
+        self.log = logging.getLogger('turnip.worker')
 
     def __str__(self):
         return "<worker:{0}>".format(self.lock)
@@ -37,7 +37,7 @@ class Worker(object):
             t = model.Task.next(or_upcoming=True)
             if t:
                 sleep_time = min(sleep_time, (t.time_wait_until - datetime.now()).seconds)
-            log.info("task loop waiting {0} seconds...".format(sleep_time))
+            self.log.info("task loop waiting {0} seconds...".format(sleep_time))
             try:
                 time.sleep(sleep_time)
             except KeyboardInterrupt, e:
@@ -52,7 +52,7 @@ class Worker(object):
         # Get next task and lock it.
         t = model.Task.next()
         if not t:
-            log.info("No ready tasks found.")
+            self.log.info("No ready tasks found.")
             return False
 
         t.start(self)
@@ -63,28 +63,28 @@ class Worker(object):
             return False
 
         # Perform task
-        log.info("Starting task: {0}".format(t))
+        self.log.info("Starting task: {0}".format(t))
 
         fn = get_task_method(t.method)
         try:
             r = fn(task_id=t.id, **t.params)
 
-            log.info("Task completed: {0}".format(t))
+            self.log.info("Task completed: {0}".format(t))
             t.complete(self)
 
         except TaskDelayResource, e:
             t.retry(self, delay=e.delay)
-            log.warn("Task error, delaying resource group '{0}': {1}".format(e.resource, e.message))
+            self.log.warn("Task error, delaying resource group '{0}': {1}".format(e.resource, e.message))
             model.Task.delay_resource_group('twitterapi', timedelta(hours=1))
 
         except TaskAbort, e:
-            log.warn("Aborting task: {0}".format(e.message))
+            self.log.warn("Aborting task: {0}".format(e.message))
             t.fail()
             Session.commit()
             return True
 
         except Exception, e:
-            log.error("Unexpected task error, will retry later: {0}".format(repr(e)))
+            self.log.error("Unexpected task error, will retry later: {0}".format(repr(e)))
             t.retry(self, delay=60*24)
 
         Session.commit()

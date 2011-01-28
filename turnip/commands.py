@@ -43,7 +43,7 @@ def rebuild(worker, **params):
     Session.execute(q).close()
     Session.commit()
 
-    fn()
+    fn(worker)
 
 
 def list(worker, **params):

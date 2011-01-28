@@ -31,6 +31,7 @@ from optparse import OptionParser, OptionGroup
 from turnip.worker import Worker
 from turnip import commands
 from turnip import model
+from turnip import util
 
 def main():
     usage="%prog --engine=ENGINE COMMAND [ARGS ...]\n" + __doc__
@@ -38,7 +39,8 @@ def main():
     # FIXME: Use argparse someday
     parser = OptionParser(usage)
     parser.add_option("--verbose", "-v", dest="verbose", action="count", help="Enable verbose output. Use twice to enable debug output.")
-    parser.add_option("--engine", "-e", dest="engine", metavar="ENGINE", help="Database engine to use where tasks are stored (default: TURNIP_ENGINE environment variable)")
+    parser.add_option("--engine", "-e", dest="engine", metavar="ENGINE", help="Database engine to use where tasks are stored. (Default: TURNIP_ENGINE environment variable)")
+    parser.add_option("--setup", dest="setup", metavar="CALLABLE", help="Method to call to setup the worker's environment. (Default: TURNIP_SETUP environment variable)")
 
     options, args = parser.parse_args()
 
@@ -69,6 +71,13 @@ def main():
     params = {}
     if command == 'rebuild':
         params['method'] = args[1]
+
+    if not options.setup:
+        options.setup = os.environ.get('TURNIP_SETUP')
+
+    if options.setup:
+        log.info("Running setup method: %s" % options.setup)
+        util.get_task_method(options.setup)()
 
     w = Worker()
     fn(w, **params)
