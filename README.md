@@ -2,6 +2,8 @@
 
 Like [celeryq](http://celeryq.org/) but tastier.
 
+**Warning**: This software is in a state of being useful but unstable. You should acquire a good understanding of the codebase before using this.
+
 ## Tasty
 
 The goal is to be simple, small, and self-contained.
@@ -59,13 +61,16 @@ The goal is to be simple, small, and self-contained.
         # Example: An error from a 'twitter-api' tag would trigger a 1hr delay on all pending tasks of that group.
         resource_group = Column(types.String(32))
 
-        method = Column(types.String(32), nullable=False)
+        # A ``method`` is a Python object path to a callable that takes ``params``.
+        method = Column(types.Text, nullable=False)
         params = Column(types.PickleType, default=dict, nullable=False)
 
+        # Random string (like a uuid)
         lock_key = Column(types.String(32))
 
         recurring_cron = Column(types.String(128)) # Cron-like string for recurring. If not set, wont recur.
 
+        # Set when the current task is related to another task.
         parent_task_id = Column(types.Integer, ForeignKey('task.id'))
         parent_task = orm.relationship('Task', remote_side=id)
         parent_type = Column(mytypes.Enum(['master', 'retry', 'recurring']), default='master', nullable=False)
