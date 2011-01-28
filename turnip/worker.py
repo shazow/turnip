@@ -8,7 +8,7 @@ from turnip import model
 Session = model.Session
 
 import logging
-log = logging.getLogger(__name__)
+log = logging.getLogger('turnip')
 
 
 class Worker(object):

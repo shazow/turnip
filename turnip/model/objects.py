@@ -30,8 +30,8 @@ class Task(BaseModel):
     method = Column(types.Text, nullable=False)
     params = Column(types.PickleType, default=dict, nullable=False)
 
-    # Random string (like a uuid)
-    lock_key = Column(types.String(32))
+    # Random byte string (like a uuid)
+    lock_key = Column(types.LargeBinary(16))
 
     recurring_cron = Column(types.String(128)) # Cron-like string for recurring. If not set, wont recur.
 

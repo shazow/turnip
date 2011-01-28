@@ -6,7 +6,7 @@ from sqlalchemy import and_
 from datetime import datetime, timedelta
 
 import logging
-log = logging.getLogger(__name__)
+log = logging.getLogger('turnip')
 
 __all__ = ['run', 'prune', 'rebuild', 'revive', 'list']
 
@@ -54,7 +54,6 @@ def list(worker, **params):
         for task in q:
             print q
 
-    print dir(model)
     print "-- Summaries --"
     print "Pending:\t %d" % Session.query(model.Task).filter_by(state='pending').count()
     print "Started:\t %d" % Session.query(model.Task).filter_by(state='started').count()

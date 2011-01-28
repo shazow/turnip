@@ -21,9 +21,10 @@ Commands:
 """
 import sqlalchemy
 import sys
+import os
 
 import logging
-log = logging.getLogger(__name__)
+log = logging.getLogger('turnip')
 
 from optparse import OptionParser, OptionGroup
 
@@ -37,7 +38,7 @@ def main():
     # FIXME: Use argparse someday
     parser = OptionParser(usage)
     parser.add_option("--verbose", "-v", dest="verbose", action="count", help="Enable verbose output. Use twice to enable debug output.")
-    parser.add_option("--engine", "-e", dest="engine", metavar="ENGINE", help="Database engine to use where tasks are stored.")
+    parser.add_option("--engine", "-e", dest="engine", metavar="ENGINE", help="Database engine to use where tasks are stored (default: TURNIP_ENGINE environment variable)")
 
     options, args = parser.parse_args()
 
@@ -55,13 +56,27 @@ def main():
     if not fn:
         parser.error("Invalid command: %s" % command)
 
+    if not options.engine:
+        options.engine = os.environ.get('TURNIP_ENGINE')
+
+    if not options.engine:
+        parser.error("Must specify engine using the --engine argument or TURNIP_ENGINE environment variable.")
+
     engine = sqlalchemy.create_engine(options.engine)
     model.init_model(engine)
     model.metadata.create_all(bind=engine)
 
+    params = {}
+    if command == 'rebuild':
+        params['method'] = args[1]
+
     w = Worker()
-    fn(w)
+    fn(w, **params)
 
 
 if __name__ == '__main__':
+    log_handler = logging.StreamHandler()
+    log_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
+    log.addHandler(log_handler)
+
     main()
