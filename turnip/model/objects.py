@@ -1,7 +1,7 @@
 from turnip.model.meta import Session, BaseModel
 from turnip.model import types as mytypes
 
-from sqlalchemy import orm, types, Column, Index, ForeignKey, PrimaryKeyConstraint, and_
+from sqlalchemy import orm, types, Column, Index, ForeignKey, and_
 from datetime import datetime, timedelta
 import time
 from croniter import croniter
@@ -128,6 +128,6 @@ class Task(BaseModel):
         return self.lock_key == worker.lock
 
 
-Index('task_discover_idx',
+Index('turnip_task_discover_idx',
       Task.state,
       Task.time_wait_until)
