@@ -24,10 +24,15 @@ class TestTasks(TestModel):
 
         t.start(w)
         t.retry(w)
-        self.assertEqual(t.state, 'pending')
+        Session.commit()
+        self.assertEqual(t.state, 'retried')
 
-        t2 = t.create_recurring()
-        self.assertFalse(t2)
+        t2 = model.Task.next()
+        self.assertTrue(t2)
+        self.assertNotEqual(t.id, t2.id)
+
+        t3 = t2.create_recurring()
+        self.assertFalse(t3)
 
     def test_recurring(self):
         now = datetime.now()

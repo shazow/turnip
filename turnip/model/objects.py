@@ -40,7 +40,7 @@ class Task(BaseModel):
     parent_task = orm.relationship('Task', remote_side=id)
     parent_type = Column(mytypes.Enum(['master', 'retry', 'recurring']), default='master', nullable=False)
 
-    state = Column(mytypes.Enum(['pending', 'started', 'completed', 'failed']), default='pending', nullable=False, index=True)
+    state = Column(mytypes.Enum(['pending', 'started', 'completed', 'failed', 'retried']), default='pending', nullable=False, index=True)
 
     def __str__(self):
         return "%d:%s(%r)" % (self.id, self.method, self.params)
@@ -105,9 +105,14 @@ class Task(BaseModel):
         self._seconds_started = time.time()
 
     def retry(self, worker, delay=0):
-        self.state = 'pending'
-        self.lock_key = None
-        self.time_wait_until = datetime.now() + timedelta(seconds=delay)
+        self.state = 'retried'
+        time_retry = time_wait_until = datetime.now() + timedelta(seconds=delay)
+
+        t = Task.create(time_wait_until=time_retry, resource_group=self.resource_group,
+                method=self.method, params=self.params, recurring_cron=self.recurring_cron,
+                parent_task_id=self.id, parent_type='retry')
+
+        return t
 
     def complete(self, worker):
         if not self.check_lock(worker):

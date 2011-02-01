@@ -10,6 +10,9 @@ Session = model.Session
 import logging
 log = logging.getLogger('turnip')
 
+LOOP_SLEEP = 0
+LOOP_CONTINUE = 1
+
 class Worker(object):
     def __init__(self, lock=None):
         self.lock = lock or uuid.uuid1().get_bytes()
@@ -31,13 +34,15 @@ class Worker(object):
             raise ValueError("Interval must be at least 60 seconds.")
 
         while True:
-            while self.do_task():
-                pass
+            count = 0
+            while self.do_task() == LOOP_CONTINUE:
+                count += 1
+
             sleep_time = interval
             t = model.Task.next(or_upcoming=True)
             if t:
                 sleep_time = min(sleep_time, (t.time_wait_until - datetime.now()).seconds)
-            self.log.info("task loop waiting {0} seconds...".format(sleep_time))
+            self.log.info("Completed {0} tasks in this cycle. Sleeping {1} seconds.".format(count, sleep_time))
             try:
                 time.sleep(sleep_time)
             except KeyboardInterrupt, e:
@@ -53,14 +58,14 @@ class Worker(object):
         t = model.Task.next()
         if not t:
             self.log.info("No ready tasks found.")
-            return False
+            return LOOP_SLEEP
 
         t.start(self)
         Session.commit()
 
         if not t.check_lock(self):
             # Another worker got the task, abort.
-            return False
+            return LOOP_CONTINUE
 
         # Perform task
         self.log.info("Starting task: {0}".format(t))
@@ -73,30 +78,30 @@ class Worker(object):
             t.complete(self)
 
         except TaskDelayResource, e:
-            t.retry(self, delay=e.delay)
-            self.log.warn("Task error, delaying resource group '{0}': {1}".format(e.resource, e.message))
-            model.Task.delay_resource_group('twitterapi', timedelta(hours=1))
+            new = t.retry(self, delay=e.delay)
+            self.log.warn("Task error, will retry in {0} seconds: {1}".format(e.delay, e.message))
+            if t.resource_group:
+                self.log.warn("Delaying resource group by 1 hour: {0}".format(t.resource_group))
+                model.Task.delay_resource_group(t.resource_group, timedelta(hours=1))
 
         except TaskAbort, e:
             self.log.warn("Aborting task: {0}".format(e.message))
             t.fail()
-            Session.commit()
-            return True
 
         except Exception, e:
             self.log.error("Unexpected task error, will retry later: {0}".format(repr(e)))
-            t.retry(self, delay=60*24)
+            new = t.retry(self, delay=60*24)
 
         Session.commit()
 
         if t.state != 'completed':
-            return True
+            return LOOP_CONTINUE
 
         if t.recurring_cron:
             new = t.create_recurring()
 
         Session.commit()
 
-        return True
+        return LOOP_CONTINUE
 
 
