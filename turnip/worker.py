@@ -80,9 +80,10 @@ class Worker(object):
         except TaskDelayResource, e:
             new = t.retry(self, delay=e.delay)
             self.log.warn("Task error, will retry in {0} seconds: {1}".format(e.delay, e.message))
-            if t.resource_group:
-                self.log.warn("Delaying resource group by 1 hour: {0}".format(t.resource_group))
-                model.Task.delay_resource_group(t.resource_group, timedelta(hours=1))
+            resource = e.resource or t.resource_group
+            if resource:
+                self.log.warn("Delaying resource group by 1 hour: {0}".format(resource))
+                model.Task.delay_resource_group(resource, timedelta(hours=1))
 
         except TaskAbort, e:
             self.log.warn("Aborting task: {0}".format(e.message))
