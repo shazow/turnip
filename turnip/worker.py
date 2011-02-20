@@ -7,6 +7,8 @@ from turnip.util import get_task_method
 from turnip import model
 Session = model.Session
 
+from sqlalchemy.exeptions import SQLAlchemyError
+
 import logging
 log = logging.getLogger('turnip')
 
@@ -90,6 +92,8 @@ class Worker(object):
             t.fail()
 
         except Exception, e:
+            Session.rollback()
+
             self.log.error("Unexpected task error, will retry later: {0}".format(repr(e)))
             new = t.retry(self, delay=60*24)
 
@@ -102,6 +106,7 @@ class Worker(object):
             new = t.create_recurring()
 
         Session.commit()
+        Session.remove()
 
         return LOOP_CONTINUE
 
