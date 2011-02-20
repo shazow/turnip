@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timedelta
 import time
+import sys
 
 from turnip.exceptions import TaskError, TaskDelayResource, TaskAbort
 from turnip.util import get_task_method
@@ -94,7 +95,7 @@ class Worker(object):
         except Exception, e:
             Session.rollback()
 
-            self.log.error("Unexpected task error, will retry later: {0}".format(repr(e)))
+            self.log.error("Unexpected task error, will retry later:  \n{0}\n  {1}".format(repr(e), sys.exc_info()[2]))
             new = t.retry(self, delay=60*24)
 
         Session.commit()
