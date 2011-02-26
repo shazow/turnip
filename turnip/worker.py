@@ -90,7 +90,7 @@ class Worker(object):
 
         except TaskAbort, e:
             self.log.warn("Aborting task: {0}".format(e.message))
-            t.fail()
+            t.fail(self)
 
         except Exception, e:
             Session.rollback()
