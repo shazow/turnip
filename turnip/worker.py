@@ -95,7 +95,7 @@ class Worker(object):
         except Exception, e:
             Session.rollback()
 
-            self.log.error("Unexpected task error, will retry later:  \n{0}\n  {1}".format(repr(e)))
+            self.log.error("Unexpected task error, will retry later: {0}".format(repr(e)))
             traceback.print_exc()
             new = t.retry(self, delay=60*24)
 
