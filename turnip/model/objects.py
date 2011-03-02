@@ -37,7 +37,6 @@ class Task(BaseModel):
 
     # Set when the current task is related to another task.
     parent_task_id = Column(types.Integer)
-    parent_task = orm.relationship('Task', remote_side=id)
     parent_type = Column(mytypes.Enum(['master', 'retry', 'recurring']), default='master', nullable=False)
 
     state = Column(mytypes.Enum(['pending', 'started', 'completed', 'failed', 'retried']), default='pending', nullable=False, index=True)
