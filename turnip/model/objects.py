@@ -36,7 +36,7 @@ class Task(BaseModel):
     recurring_cron = Column(types.String(128)) # Cron-like string for recurring. If not set, wont recur.
 
     # Set when the current task is related to another task.
-    parent_task_id = Column(types.Integer, ForeignKey(id))
+    parent_task_id = Column(types.Integer)
     parent_task = orm.relationship('Task', remote_side=id)
     parent_type = Column(mytypes.Enum(['master', 'retry', 'recurring']), default='master', nullable=False)
 
