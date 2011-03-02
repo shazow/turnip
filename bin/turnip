@@ -50,9 +50,9 @@ def main():
     command = args[0].lower()
 
     if options.verbose > 1:
-        log.setLevel(logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG)
     elif options.verbose > 0:
-        log.setLevel(logging.INFO)
+        logging.basicConfig(level=logging.INFO)
 
     fn = getattr(commands, command)
     if not fn:
@@ -84,8 +84,4 @@ def main():
 
 
 if __name__ == '__main__':
-    log_handler = logging.StreamHandler()
-    log_handler.setFormatter(logging.Formatter('%(levelname)-8s %(message)s'))
-    log.addHandler(log_handler)
-
     main()
