@@ -23,7 +23,7 @@ def revive(worker, **params):
 
 def prune(worker, **params):
     t = model.Task.__table__
-    q = t.delete().where(and_(t.c.time_created > (datetime.now() - timedelta(weeks=1)), t.c.state>='completed'))
+    q = t.delete().where(and_(t.c.time_wait_until < (datetime.now() - timedelta(weeks=1)), t.c.state>='completed'))
     Session.execute(q).close()
     Session.commit()
 
