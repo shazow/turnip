@@ -95,7 +95,7 @@ class Task(BaseModel):
             return
 
         now = datetime.now()
-        cron = croniter(self.recurring_cron, self.time_created)
+        cron = croniter(self.recurring_cron, self.time_created or datetime.now())
 
         time_next_task = cron.get_next(datetime)
         while time_next_task < now:
