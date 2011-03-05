@@ -82,6 +82,14 @@ class Task(BaseModel):
         q.order_by(Task.time_wait_until.asc())
         return q.first()
 
+    @classmethod
+    def create_next(cls, **kw):
+        if 'recurring_cron' not in kw:
+            raise ValueError("Can't create_next without recurring_cron")
+
+        o = cls(**kw)
+        return o.create_recurring()
+
     def create_recurring(self):
         if not self.recurring_cron:
             return
