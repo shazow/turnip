@@ -46,6 +46,11 @@ class Worker(object):
             if t:
                 sleep_time = min(sleep_time, (t.time_wait_until - datetime.now()).seconds)
             self.log.info("Completed {0} tasks in this cycle. Sleeping {1} seconds.".format(count, sleep_time))
+
+            if params.get('one_cycle') and count:
+                self.log.info("Shutting down due to one_cycle.")
+                return
+
             try:
                 time.sleep(sleep_time)
             except KeyboardInterrupt, e:
