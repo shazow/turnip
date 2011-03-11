@@ -45,11 +45,17 @@ class Worker(object):
             t = model.Task.next(or_upcoming=True)
             if t:
                 sleep_time = min(sleep_time, (t.time_wait_until - datetime.now()).seconds)
-            self.log.info("Completed {0} tasks in this cycle. Sleeping {1} seconds.".format(count, sleep_time))
+
+            self.log.info("Completed {0} tasks in this cycle.".format(count))
 
             if params.get('one_cycle') and count:
                 self.log.info("Shutting down due to one_cycle.")
                 return
+
+            if sleep_time <= 0:
+                continue
+
+            self.log.info("Sleeping {1} seconds until next cycle.".format(sleep_time))
 
             try:
                 time.sleep(sleep_time)
