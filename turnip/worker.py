@@ -55,7 +55,7 @@ class Worker(object):
             if sleep_time <= 0:
                 continue
 
-            self.log.info("Sleeping {1} seconds until next cycle.".format(sleep_time))
+            self.log.info("Sleeping {0} seconds until next cycle.".format(sleep_time))
 
             try:
                 time.sleep(sleep_time)
