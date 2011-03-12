@@ -16,6 +16,9 @@ log = logging.getLogger('turnip')
 LOOP_SLEEP = 0
 LOOP_CONTINUE = 1
 
+def delta_seconds(t1, t2):
+    return time.mktime(t2.timetuple()) - time.mktime(t1.timetuple())
+
 class Worker(object):
     def __init__(self, lock=None):
         self.lock = lock or uuid.uuid1().get_bytes()
@@ -44,7 +47,7 @@ class Worker(object):
             sleep_time = interval
             t = model.Task.next(or_upcoming=True)
             if t:
-                sleep_time = min(sleep_time, (t.time_wait_until - datetime.now()).seconds)
+                sleep_time = min(sleep_time, delta_seconds(t.time_wait_until, datetime.now()))
 
             self.log.info("Completed {0} tasks in this cycle.".format(count))
 
