@@ -47,7 +47,7 @@ class Worker(object):
             sleep_time = interval
             t = model.Task.next(or_upcoming=True)
             if t:
-                sleep_time = min(sleep_time, delta_seconds(t.time_wait_until, datetime.now()))
+                sleep_time = min(sleep_time, delta_seconds(datetime.now(), t.time_wait_until))
 
             self.log.info("Completed {0} tasks in this cycle.".format(count))
 
