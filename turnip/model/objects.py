@@ -79,7 +79,7 @@ class Task(BaseModel):
         if not or_upcoming:
             q = q.filter(Task.time_wait_until<=datetime.now())
 
-        q.order_by(Task.time_wait_until.asc())
+        q = q.order_by(Task.time_wait_until.asc())
         return q.first()
 
     @classmethod
