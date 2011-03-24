@@ -99,8 +99,8 @@ class Worker(object):
             self.log.warn("Task error, will retry in {0} seconds: {1}".format(e.delay, e.message))
             resource = e.resource or t.resource_group
             if resource:
-                self.log.warn("Delaying resource group by 1 hour: {0}".format(resource))
-                model.Task.delay_resource_group(resource, timedelta(hours=1))
+                self.log.warn("Delaying resource group by {0} seconds: {1}".format(e.delay, resource))
+                model.Task.delay_resource_group(resource, timedelta(seconds=e.delay))
 
         except TaskAbort, e:
             self.log.warn("Aborting task: {0}".format(e.message))
@@ -109,9 +109,9 @@ class Worker(object):
         except Exception, e:
             Session.rollback()
 
-            self.log.error("Unexpected task error, will retry later: {0} - {1}".format(repr(e), str(e)))
+            self.log.error("Unexpected task error, will retry in an hour: {0} - {1}".format(repr(e), str(e)))
             traceback.print_exc()
-            new = t.retry(self, delay=60*24)
+            new = t.retry(self, delay=60*60)
 
         Session.commit()
 
