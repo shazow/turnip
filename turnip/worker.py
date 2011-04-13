@@ -8,7 +8,7 @@ from turnip.util import get_task_method
 from turnip import model
 Session = model.Session
 
-from sqlalchemy.exceptions import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 
 import logging
 log = logging.getLogger('turnip')

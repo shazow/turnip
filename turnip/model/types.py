@@ -23,7 +23,7 @@ class Enum(types.TypeDecorator):
         self.id_lookup = value_map
         self.name_lookup = dict((v,k) for k,v in value_map.iteritems())
 
-        super(Enum, self).__init__(self, *args, **kw)
+        super(Enum, self).__init__()
 
     def process_bind_param(self, value, dialect):
         if not value:
