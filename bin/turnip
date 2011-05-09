@@ -42,6 +42,7 @@ def main():
     parser.add_option("--engine", "-e", dest="engine", metavar="ENGINE", help="Database engine to use where tasks are stored. (Default: TURNIP_ENGINE environment variable)")
     parser.add_option("--setup", dest="setup", metavar="CALLABLE", help="Method to call to setup the worker's environment. (Default: TURNIP_SETUP environment variable)")
     parser.add_option("--one-cycle", "-1", dest="one_cycle", action="store_true", help="Shut down after the first cycle of jobs completed. (Convenient way for refreshing the environment periodically.)")
+    parser.add_option("--interval", "-i", dest="interval", metavar="SECONDS", default=3600, help="Number of seconds to sleep between checking for tasks. (Default: %default)")
 
     options, args = parser.parse_args()
 
@@ -69,7 +70,8 @@ def main():
     model.init_model(engine)
     model.metadata.create_all(bind=engine)
 
-    params = {}
+    params = {'interval': options.inteval}
+
     if command == 'rebuild':
         params['method'] = args[1]
 
