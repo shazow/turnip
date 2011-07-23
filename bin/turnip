@@ -43,6 +43,7 @@ def main():
     parser.add_option("--setup", dest="setup", metavar="CALLABLE", help="Method to call to setup the worker's environment. (Default: TURNIP_SETUP environment variable)")
     parser.add_option("--one-cycle", "-1", dest="one_cycle", action="store_true", help="Shut down after the first cycle of jobs completed. (Convenient way for refreshing the environment periodically.)")
     parser.add_option("--interval", "-i", dest="interval", metavar="SECONDS", default=3600, help="Number of seconds to sleep between checking for tasks. (Default: %default)")
+    parser.add_option("--max-jobs", "-m", dest="max_jobs", metavar="N", default=0, help="Shut down after N jobs. (Default: %default)")
 
     options, args = parser.parse_args()
 
@@ -84,6 +85,9 @@ def main():
 
     if options.one_cycle:
         params['one_cycle'] = True
+
+    if options.max_jobs > 0:
+        params['max_jobs'] = int(options.max_jobs)
 
     w = Worker()
     fn(w, **params)

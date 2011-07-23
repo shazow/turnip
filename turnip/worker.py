@@ -39,10 +39,16 @@ class Worker(object):
         if interval < 60:
             raise ValueError("Interval must be at least 60 seconds.")
 
+        max_jobs = params.get('max_jobs')
+
         while True:
             count = 0
             while self.do_task() == LOOP_CONTINUE:
                 count += 1
+
+                if max_jobs and count > max_jobs:
+                    self.log.info("Shutting down due to max_jobs")
+                    return
 
             sleep_time = interval
             t = model.Task.next(or_upcoming=True)
