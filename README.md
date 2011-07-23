@@ -89,3 +89,8 @@ Head over to the [examples](https://github.com/shazow/turnip/blob/master/example
 
 * Environment setup hook.
 * Paster plugin for loading Pylons environment natively.
+
+
+## License
+
+MIT
